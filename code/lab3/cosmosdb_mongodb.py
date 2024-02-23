@@ -27,8 +27,37 @@ def count_docs(collection):
     c = collection.count_documents({})
     return c
 
+def copy(collections, collectiond):
+    for a in collections.find():
+        try:
+            collectiond.insert(a)
+            print(a)
+        except:
+            print('did not copy')
+
+
 def insert_one(collection, doc):
     return collection.insert_one(doc)
+    
+    
+def consolidate (collections, collectiond): 
+    myList=list(collections.find({}))
+    return collectiond.insert_many(myList)
+    
+    
+    
+
+def update_one(collection, doc): 
+    print(doc)
+    doc_id = str(doc["id"])
+    print(doc_id)
+    if collection.count_documents({"id": doc_id}) == 0:
+        print("insert")
+        print(doc)
+        return collection.insert_one(doc)
+    else:
+        print("replace")
+        return collection.replace_one({"id":doc["id"]},doc)
 
 def insert_one_if_not_exists(collection, doc):    
     doc_id = str(doc["id"])
@@ -36,7 +65,8 @@ def insert_one_if_not_exists(collection, doc):
     if collection.count_documents({"id": doc_id}) == 0:
         return collection.insert_one(doc)
     else:
-        return f"Document with _id {doc_id} already exists, no insertion performed."
+        collection.replace_one({"id":doc["id"]},doc)
+        return f"Document with _id {doc_id} already exists, update performed."
 
 def insert_many(collection, docs):
     return collection.insert_many(docs)
